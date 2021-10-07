@@ -1,0 +1,23 @@
+
+Questions about the DataBaseKey
+
+Q1. In "Marked_CaptureDetails": What does the "GizzardFill" variable describe?
+	A1. 
+
+Q2. In "Marked_CaptureDetails": Small typo in a variable name "BreadingFreq", which I guess is the breathing frequency of the willow ptarmigan? If so, is it the number of breaths every 10, 20, 30, 60 seconds?
+	A2.  
+
+Q3. In "NestMonitoring_PictureList": What does the variables "DateReadable" and "CopyStatus" describe?
+	A3.
+
+Q4. Possible to change the name of "NestMonitoring_PictureList" to "NestMonitor_PictureList" to be consistent in our naming scheme?
+	A4. 
+
+
+
+
+
+
+
+
+
