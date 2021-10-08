@@ -1,5 +1,5 @@
 ---
-title: "Data Base Key"
+title: "Database Key"
 author: "Erlend B. Nilsen"
 date: "06.11.2019"
 output:
@@ -10,7 +10,7 @@ output:
 knit: (function(input_file, encoding) {
   out_dir <- "docs";
   rmarkdown::render(input_file,encoding=encoding,
- output_file=file.path(dirname(input_file), out_dir, 'databasekey.html'))})
+ output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
 editor_options: 
   chunk_output_type: inline
 ---
@@ -19,21 +19,79 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+<!-- Load all the tables from the database to use as examples in the database key -->
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+library(shiny)
+library(odbc)
+library(editData)
+library(tidyverse)
+library(RSQLite)
+library(uuid)
+library(lubridate)
+library(readxl)
+
+
+setwd("P:/12179000_lirypetelemetri_i_lierne/DATA Lierne/Database")
+
+# Connecting to data base, and reading 
+con = dbConnect(drv=RSQLite::SQLite(), dbname="Lierne_WP_Project_Data_ReSt.db")
+
+# Willow ptarmigan project
+HabMappingHab = as_tibble(dbReadTable(con, "HabMappingHab"))
+HabMappingNestCover = as_tibble(dbReadTable(con, "HabMappingNestCover"))
+HabMappingTreeSpecies = as_tibble(dbReadTable(con, "HabMappingTreeSpecies"))
+HabMappingViewCovered = as_tibble(dbReadTable(con, "HabMappingViewCovered"))
+BiologicalSamples = as_tibble(dbReadTable(con, "Marked_BiologicalSamples"))
+CaptureDetails = as_tibble(dbReadTable(con, "Marked_CaptureDetails"))
+DeathDetails = as_tibble(dbReadTable(con, "Marked_DeathDetails"))
+Occurrences = as_tibble(dbReadTable(con, "Marked_Occurences")) 
+TransmitterInfo = as_tibble(dbReadTable(con, "Marked_TransmitterInfo"))
+AnalyzedSamples = as_tibble(dbReadTable(con, "NestMonitor_AnalyzedSamples"))
+CameraDismounting = as_tibble(dbReadTable(con, "NestMonitor_CameraDismounting"))
+CameraMounting = as_tibble(dbReadTable(con, "NestMonitor_CameraMounting"))
+ChickCount = as_tibble(dbReadTable(con, "NestMonitor_ChickCount"))
+NestFate = as_tibble(dbReadTable(con, "NestMonitor_NestFate"))
+#PictureList =  as_tibble(dbReadTable(con, "NestMonitor_PictureList"))
+
+# Greening project
+GreeningAnalysis = as_tibble(dbReadTable(con, "GreeningAnalysis"))
+GreeningRaw = as_tibble(dbReadTable(con, "GreeningRaw"))
+
+dbDisconnect(con) 
+
+
+```
+
+
 ## Introduction
-This document describe and document the tables in the database **Lierne_WP_Project_Data.db**. In addition, a short intro to how to enter data through software R and how to access data from R is given. The data base is a SQLite database. More information about SQLite can be found here (ref).
+This document describes and documents the tables in the database **Lierne_WP_Project_Data_ReSt.db**. A short intro showing how to enter data through the software R and how to access data from R is given. The database is a SQLite database. More information about SQLite can be found here (<a href ="https://www.sqlite.org/index.html">SQLite</a>).
 
 ### Data ownership and provenance
 This database contain data from the willow ptarmigan project in Lierne. The project was initiated in 2015, in collaboration between NINA and Nord University. Data provenance and ownership is dictated by the contracts, and might to some extent vary between the different data sets. As long as data are kept "in house" this is solved by agreements between the project leaders at NINA and Nord University, respectively. When data are published and publicly available, they will be so following the FAIR principles for data publication. This means that they will be accompanied by both a CC licence and a citation string. 
 
 ### Data sources
-The core of the project, and this data set, is data collected from radio collared willow ptarmigan in Lierne municipality. Following the project research plan, ca. 40 willow ptarmigans are captured and instrumented with VHF neck collars each winter (February-March). At capture, various morphological and physiologial measures are recorded. The birds are monitored until mortality is recorded or until we loose contact (e.g. due to collar failure or movement out of the study area). During the breeding season, the breeding success of marked females are monitored using game cameras/camera traps at the nest. 
+The core of the project, and this data set, is data collected from radio collared willow ptarmigan in Lierne municipality. Following the project research plan, approx. 40 willow ptarmigans are captured and instrumented with VHF neck collars each winter (February-March). At capture, various morphological and physiological measures are recorded. The birds are monitored until mortality is recorded or until we loose contact (e.g. due to collar failure, empty battery or movement out of the study area). During the breeding season, the breeding success of marked females are monitored using camera traps at the nest. 
 
-In addition to the main field data collection described above, we conduct various short- and long term projects that are not based on marked individuals. These projects include ..
+In addition to the main field data collection described above, we conduct various short- and long term projects that are not based on marked individuals. These projects include...
 
-## Data base tables
+## Database tables
 Currently there are seven tables associated with the data gathered from 2015 until present. These are separated into two categories: tables that contain information regarding the marked willow ptarmigans themselves and tables that contain information about the nest. Table nomenclature follow the structure of "Marked_XX.." and "NestMonitor_XX.." for marked birds tables and nest tables respectively.
 
 All "Marked_XX" tables contain the following columns: "OccurrenceID", "OrganismID", "RingNR", "Date", "Comment", "Observer1", "Observer2" and "JulianDate". "OccurrenceID" and "OrganismID" are uniquely generated identification codes, and "RingNR" is the leg band number given to the marked birds upon capture. The rest are self-explanatory and require no further description.
+```{r, echo=FALSE}
+library(DT)
+DT::datatable(
+  head(NestFate), 
+  editable = 'cell',
+  extensions = "FixedColumns",
+  options = list(
+    dom = "t",
+    scrollX = TRUE,
+    scrollCollapse = TRUE,
+    caption = "Tabell 1."
+  ))
+```
+
 
 Similarly to the "Marked_XX" tables, all "NestMonitor_XX" tables have columns describing "NestUUID", "organismID", "Comments" and "RingNR". All "NestMonitor_XX" tables also have "Year", "NestName" and "Nestname1". "NestUUID" and "organismsID" are unique identification codes. "NestName" is the "Year" variable appended to the "RingNR" variable, while "NestName1" is identical to the "RingNR" variable for all willow ptarmigan that have a "RingNR". For willow ptarmigan without a "RingNR" (Observer happened to come across a willow ptarmigan nest and mounted a wildlife camera there) "NestName" is a unique code with "Year" appended (e.g., "2015U01_2015", "2015U02_2015", "..."), while "NestName1" is just the unique code (e.g., "2015U01", "2015U02", "..."). 
 
