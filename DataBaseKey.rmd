@@ -29,8 +29,11 @@ library(RSQLite)
 library(uuid)
 library(lubridate)
 library(readxl)
+library(DT)
 
+```
 
+```{r, echo = FALSE, message = FALSE, warning = FALSE, eval = FALSE}
 setwd("P:/12179000_lirypetelemetri_i_lierne/DATA Lierne/Database")
 
 # Connecting to data base, and reading 
@@ -59,12 +62,13 @@ GreeningRaw = as_tibble(dbReadTable(con, "GreeningRaw"))
 
 dbDisconnect(con) 
 
+setwd("C:/Users/markus.israelsen/OneDrive - NINA/GitHub/Willow Ptarmigan Database Key/Willow-Ptarmigan-Database-Key")
 
 ```
 
 
 ## Introduction
-This document describes and documents the tables in the database **Lierne_WP_Project_Data_ReSt.db**. A short intro showing how to enter data through the software R and how to access data from R is given. The database is a SQLite database. More information about SQLite can be found here (<a href ="https://www.sqlite.org/index.html">SQLite</a>).
+This document describes and documents the tables in the database **Lierne_WP_Project_Data_ReSt.db**. A short intro showing how to enter data through the software R and how to access data from R is given. The database is a SQLite database. More information about SQLite can be found here (<a href ="https://www.sqlite.org/index.html" target="_blank">SQLite</a>).
 
 ### Data ownership and provenance
 This database contain data from the willow ptarmigan project in Lierne. The project was initiated in 2015, in collaboration between NINA and Nord University. Data provenance and ownership is dictated by the contracts, and might to some extent vary between the different data sets. As long as data are kept "in house" this is solved by agreements between the project leaders at NINA and Nord University, respectively. When data are published and publicly available, they will be so following the FAIR principles for data publication. This means that they will be accompanied by both a CC licence and a citation string. 
@@ -75,13 +79,61 @@ The core of the project, and this data set, is data collected from radio collare
 In addition to the main field data collection described above, we conduct various short- and long term projects that are not based on marked individuals. These projects include...
 
 ## Database tables
-Currently there are seven tables associated with the data gathered from 2015 until present. These are separated into two categories: tables that contain information regarding the marked willow ptarmigans themselves and tables that contain information about the nest. Table nomenclature follow the structure of "Marked_XX.." and "NestMonitor_XX.." for marked birds tables and nest tables respectively.
+Currently there are 17 tables associated with the data gathered from 2015 until present. These are separated into two main categories, tables that contain information with regards to willow ptarmigan and tables connected to the sub-project "The greening project": <br>
+
+<ul>
+  <li>Greening analysis</li>
+  <li>Greening raw data</li>
+</ul>
+The willow ptarmigan tables are further separated into three categories:
+<ul>
+  <li>Habitat mapping</li>
+    <ul>
+      <li>Habitat description</li>
+      <li>Nest cover</li>
+      <li>View covered</li>
+      <li>Tree species</li>
+    </ul>
+  <li>Marked willow ptarmigan</li>
+    <ul>
+      <li>Biological samples</li>
+      <li>Capture details</li>
+      <li>Occurrences</li>
+      <li>Transmitter info</li>
+    </ul>
+  <li>Nest monitor</li>
+    <ul>
+      <li>Analyzed nest samples</li>
+      <li>Camera mounting</li>
+      <li>Camera dismounting</li>
+      <li>Chick counting</li>
+      <li>Nest fate</li>
+      <li>Picture list</li>
+    </ul>
+</ul> Table nomenclature follow the structure of "HabMapping", "Marked_XX.." and "NestMonitor_XX.." for habitat mapping, marked birds and nest tables respectively.
+
+In addition to the variables described in the habitat mapping form, the "HabMapping" tables also contain the columns "NestName", "NestUUID" and "organismID" to be able to connect them with the various other tables.
+```{r, echo = FALSE, message = FALSE, warning = FALSE, eval=FALSE}
+DT::datatable(
+  head(HabMappingHab),
+  editable = "cell",
+  extensions = "FixedColumns",
+  options = list(
+    dom = "t",
+    scrollX = TRUE,
+    scrollCollapse = TRUE,
+    caption = "Tabell 1."
+  )
+)
+
+```
+
 
 All "Marked_XX" tables contain the following columns: "OccurrenceID", "OrganismID", "RingNR", "Date", "Comment", "Observer1", "Observer2" and "JulianDate". "OccurrenceID" and "OrganismID" are uniquely generated identification codes, and "RingNR" is the leg band number given to the marked birds upon capture. The rest are self-explanatory and require no further description.
-```{r, echo=FALSE}
-library(DT)
+```{r, echo=FALSE, message = FALSE, warning = FALSE, eval = FALSE}
+
 DT::datatable(
-  head(NestFate), 
+  head(Occurrences), 
   editable = 'cell',
   extensions = "FixedColumns",
   options = list(
@@ -95,11 +147,27 @@ DT::datatable(
 
 Similarly to the "Marked_XX" tables, all "NestMonitor_XX" tables have columns describing "NestUUID", "organismID", "Comments" and "RingNR". All "NestMonitor_XX" tables also have "Year", "NestName" and "Nestname1". "NestUUID" and "organismsID" are unique identification codes. "NestName" is the "Year" variable appended to the "RingNR" variable, while "NestName1" is identical to the "RingNR" variable for all willow ptarmigan that have a "RingNR". For willow ptarmigan without a "RingNR" (Observer happened to come across a willow ptarmigan nest and mounted a wildlife camera there) "NestName" is a unique code with "Year" appended (e.g., "2015U01_2015", "2015U02_2015", "..."), while "NestName1" is just the unique code (e.g., "2015U01", "2015U02", "..."). 
 
+```{r, echo = FALSE, warning = FALSE, message = FALSE, eval = FALSE}
+DT::datatable(
+  head(CameraMounting),
+  editable = "cell",
+  extensions = "FixedColumns",
+  options = list(
+    dom = "t",
+    scrollX = TRUE,
+    scrollCollapse = TRUE,
+    caption = "Tabell 1."
+  )
+)
+
+```
+
+
 ### Capture details
 **Marked_CaptureDetails**. Contains all measurements conducted during the capture and marking of willow ptarmigan: Age at capture (CaptureAge, juv/ad), estimated sex (Sex_fieldbased), sex based on DNA analysis (Sex_dna), weight at capture (Weight), sternum length (Chest), wing lengths (LeftWing, RightWing, left and right), the breathing frequency at capture (BreadingFreq), the activity level at capture (Boldness, active/calm) and the gizzard fill (0, 0.25, 0.5, 0.75, 1). The final column details if the captured bird has been recaptured (1 = not recaptured, 2 = recaptured) or not (Recapture).
 
-### Collar information
-**Marked_CollarInfo**. The information regarding the radio transmitters themselves is stored here. The unique collar number (CollarNR), its radio frequency on the 152Mhz band (CollarFrequency), the radio spectrum of the transmitter (CollarType, VHF), if the collar has been discarded or not (CollarDiscarded), and the production year of the radio transmitter (CollarProdYear).   
+### Transmitter information
+**Marked_TransmitterInfo**. The information regarding the radio transmitters themselves is stored here. The unique collar number (CollarNR), its radio frequency on the 152Mhz band (CollarFrequency), the radio spectrum of the transmitter (CollarType, VHF), if the collar has been discarded or not (CollarDiscarded), and the production year of the radio transmitter (CollarProdYear).   
 
 ### Occurences
 **Marked_Occurences**. This table contains all occurrences of willow ptarmigan in the study (including death occurrences). The status (Status) of the occurrence is given first:  
@@ -115,15 +183,26 @@ The position of the occurrence in the Universal Transverse Mercator coordinate s
   4 = Signal heard but without any accuracy in position (i.e., only used omni-antenna, very conflicting bearings, single telemetry bearing)   
 
 ### Mortality details
-**Marked_DeathDetails**. The table that contain all mortality occurrences. The death status is described first (Status):  
-  3 = Dead by harvest  
-  4 = Dead by predation  
-  5 = Dead unknown  
-  6 = Transmitting mortality  
-  8 = Capture-related mortality.  
-    
-The cause of death (CauseOfDeath) is then described:  
-  Shot, mammal, raptor, red fox, goldeneagle, crippling mortality or unknown.
+**Marked_DeathDetails**. The table that contain all mortality occurrences. The death status is described first (Status):
+<ul>
+  <li>3 = Dead by harvest</li>  
+  <li>4 = Dead by predation</li>  
+  <li>5 = Dead unknown</li>  
+  <li>6 = Transmitting mortality</li>  
+  <li>8 = Capture-related mortality.</li>  
+</ul>
+
+The cause of death (CauseOfDeath) is then described:
+<ul>
+  <li>Shot</li>
+  <li>Mammal predation</li>
+  <li>Raptor predation</li>
+  <li>Red fox predation</li>
+  <li>Golden eagle predation</li>
+  <li>Crippling mortality</li>
+  <li>Unknown</li>
+</ul>
+  
 
 
 ### Nest demography
@@ -131,6 +210,40 @@ The cause of death (CauseOfDeath) is then described:
 
 ### Nest metadata
 **NestMonitor_Metadata**. The table contains the date for the set up of the game cameras (CameraSetupDate), retrieval (CameraRetrievalDate), the ID of the camera (CameraID) and memory card (MemoryID), the position of the game camera (Zone, UTM_X, and UTM_Y), the observer(s) for set up (Observer1_SetUp, Observer2_SetUp) and retrieval (Observer1_Retrieval, Observer2_Retrieval), as well as the municipality (Municipality, Lierne, Snåsa, Grong, or Røyrvik) and location (Location) of the game camera.
+
+### Habitat mapping - Habitat
+**HabMappingHab**.
+
+### Habitat mapping - Nest cover
+**HabMappingNestCover**.
+
+### Habitat mapping - View covered
+**HabMappingViewCovered**.
+
+### Habitat mapping - Tree species
+**HabMappingTreeSpecies**.
+
+### Biological samples
+**Marked_BiologicalSamples**.
+
+### Analyzed samples
+**NestMonitor_AnalyzedSamples**.
+
+### Camera mounting
+**NestMonitor_CameraMounting**.
+
+### Camera dismounting
+**NestMonitor_CameraDismounting**.
+
+### Chick count
+**NestMonitor_ChickCount**.
+
+### Nest fate
+**NestMonitor_NestFate**.
+
+### Greening analysis
+
+### Greening raw
 
 ### Nest picture list
 **NestMonitoring_PictureList**. A table containing a list of all the game camera pictures taken during the study. The date (Date), time (Time), and year (Year) of each picture, as well as the name of the file (FileName), the old name of the file (OldFileName), if the date is readable (DateReadable), the directory of the stored file (outDir) and the copy status of the file (CopyStatus).
